@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en" id="rootHtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuroten Practical Karate - Syllabus Translation Trainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0b12;        
+            --card-bg: #1a1a2e;         
+            --text-light: #ffffff;
+            --text-muted: #aaaaaa;
+            --border-color: #2c2c2c;
+            --theme-color: #ffffff;     
+            --theme-accent: #ffffff;    
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        .screen {
+            min-height: 100vh;
+            display: none;
+            padding: 1.5rem 0.5rem;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- SCREEN 1: LANDING PAGE --- */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            margin-top: 1rem;
+        }
+
+        .logo-img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 1.25rem;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background-color: #ffffff; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand-header h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.2rem;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            color: var(--text-light);
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+
+        .brand-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .prompt-text {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            letter-spacing: 0.25px;
+        }
+
+        .tile-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            padding: 0 5px;
+        }
+
+        .kyu-tile {
+            width: 100%;
+            height: 54px; 
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            
+            /* Center aligned structural two-column grid track layout */
+            display: grid;
+            grid-template-columns: 75px 1fr;
+            align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+            
+            position: relative;
+            transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .kyu-tile::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            border-top-left-radius: 7px;
+            border-bottom-left-radius: 7px;
+            background-color: var(--tile-accent-color);
+        }
+
+        .kyu-tile:active {
+            transform: scale(0.99);
+            background-color: #22223b;
+        }
+
+        .rank-pill {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 0;
+            border-radius: 20px;
+            white-space: nowrap;
+            background-color: var(--tile-accent-color);
+            color: #ffffff;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dark-text-pill {
+            color: #000000 !important;
+        }
+
+        .rank-label {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.2px;
+            text-align: left;
+            padding-left: 8px;
+        }
+
+        .tile-stripe {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 24px;
+            border-radius: 2px;
+            box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        /* --- SCREEN 2 & 3: COMMON TRAINER/QUIZ UI --- */
+        .trainer-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            color: var(--text-light);
+        }
+
+        .current-badge {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            padding: 0.2rem 1.4rem;
+            border-radius: 30px;
+            background-color: var(--theme-color);
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .belt-dark-text-badge {
+            color: #000000 !important;
+        }
+
+        .direction-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .direction-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .direction-text strong {
+            color: var(--text-light);
+        }
+
+        .swap-direction-btn {
+            background: none;
+            border: 1px solid var(--theme-color);
+            color: var(--text-light);
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .global-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--theme-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
+        }
+
+        .control-btn:active {
+            opacity: 0.8;
+        }
+
+        .quiz-action-btn {
+            background: #1a1a2e;
+            border: 1px solid var(--theme-color);
+            color: var(--text-light);
+        }
+
+        .syllabus-section {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: var(--theme-accent); 
+            margin-bottom: 0.25rem;
+        }
+
+        .section-subtitle {
+            font-weight: 400; 
+            font-size: 0.9rem; 
+            text-transform: none; 
+            color: var(--text-muted);
+            display: block;
+            margin-top: -0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0px; 
+            width: 100%;
+        }
+
+        .flashcard {
+            background: var(--card-bg);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            border-left: 4px solid var(--theme-color); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.15s, opacity 0.2s;
+        }
+
+        .flashcard:active {
+            transform: scale(0.99);
+        }
+
+        .flashcard.quiz-graded {
+            opacity: 0.4;
+            pointer-events: none;
+            border-left-color: #444444 !important;
+        }
+
+        .card-prompt {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .card-answer {
+            display: none;
+            color: #ffd166; 
+            margin-top: 6px;
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
+
+        .flashcard.revealed .card-answer {
+            display: block;
+        }
+
+        .quiz-scoring-container {
+            display: none;
+            margin-top: 14px;
+            gap: 12px;
+            justify-content: flex-start;
+        }
+
+        .flashcard.revealed .quiz-scoring-container {
+            display: flex;
+        }
+
+        .score-choice-btn {
+            width: 34px;
+            height: 34px;
+            font-size: 1.1rem;
+            border-radius: 50%;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        .score-choice-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-got-it {
+            background-color: #2ec4b6;
+            color: #ffffff;
+        }
+
+        .btn-missed-it {
+            background-color: #e63946;
+            color: #ffffff;
+        }
+
+        .empty-state {
+            opacity: 0.6;
+            font-style: italic;
+            padding: 10px 0;
+        }
+
+        .quiz-header-container {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            width: 100%;
+        }
+
+        .quiz-header-container h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+            color: #ffd166;
+            margin-bottom: 0.25rem;
+        }
+
+        .quiz-header-container p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .quiz-score-tracker {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 12px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffd166;
+            text-align: center;
+            width: 100%;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-box h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .modal-box p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .score-display-highlight {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            color: #ffd166;
+            margin: 10px 0;
+            line-height: 1;
+        }
+
+        .modal-close-btn {
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 0.6rem 2.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- --- SCREEN 1: LANDING PAGE --- -->
+    <div id="landingScreen" class="screen active">
+        <div class="container">
+            <div class="brand-header">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRonjYzB0dk6LhMlnk-3ouqRXppIwtpP-IIRA&s" alt="Kuroten Logo" class="logo-img">
+                <h1>Kuroten Practical Karate</h1>
+                <p>Syllabus Translation Trainer</p>
+            </div>
+            
+            <div class="prompt-text">Which grade are you working towards?</div>
+            
+            <div id="tileGrid" class="tile-stack"></div>
+        </div>
+    </div>
+
+    <!-- --- SCREEN 2: ALL-IN-ONE TRANSLATION TRAINER --- -->
+    <div id="trainerScreen" class="screen">
+        <div class="container" style="width: 100%;">
+            <div class="trainer-nav">
+                <button class="back-btn" onclick="goToHome()">← Home</button>
+                <div id="currentBeltBadge" class="current-badge">9th Kyu</div>
+            </div>
+
+            <div class="direction-box">
+                <div class="direction-text">Mode: <strong id="trainerDirectionLabel">Japanese ➔ English</strong></div>
+                <button class="swap-direction-btn" onclick="toggleTranslationDirection()">Flip Direction</button>
+            </div>
+
+            <div class="global-controls">
+                <button id="btnShowAll" class="control-btn" onclick="revealAllTranslations()">Show All</button>
+                <button id="btnReset" class="control-btn" onclick="resetAllTranslations()">Reset</button>
+                <button id="btnQuiz" class="control-btn quiz-action-btn" onclick="startQuizMode()">Take a Quiz</button>
+            </div>
+
+            <div id="techniquesSection" class="syllabus-section">
+                <h2 id="titleTech" class="section-title">Kihon Waza</h2>
+                <span class="section-subtitle">(fundamental techniques)</span>
+                <div id="techniquesContainer" class="cards-list"></div>
+            </div>
+
+            <div id="combinationsSection" class="syllabus-section">
+                <h2 id="titleComb" class="section-title">Renraku Waza</h2>
+                <span class="section-subtitle">(combination techniques)</span>
+                <div id="combinationsContainer" class="cards-list"></div>
+            </div>
+
+            <div id="throwsSection" class="syllabus-section">
+                <h2 id="titleThrows" class="section-title">Nage Waza</h2>
+                <span class="section-subtitle">(throwing techniques)</span>
+                <div id="throwsContainer" class="cards-list"></div>
+            </div>
+
+            <div id="stancesSection" class="syllabus-section">
+                <h2 id="titleStances" class="section-title">Stances</h2>
+                <div id="stancesContainer" class="cards-list"></div>
+            </div>
+
+            <div id="kataSection" class="syllabus-section">
+                <h2 id="titleKata" class="section-title">Kata</h2>
+                <div id="kataContainer" class="cards-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- SCREEN 3: BLIND QUIZ MODE SCREEN WITH LIVE SCORING --- -->
+    <div id="quizScreen" class="screen">
+        <div class="container" style="width: 100%;">
+            <div class="trainer-nav">
+                <button class="back-btn" onclick="exitQuizMode()">← Exit Quiz</button>
+                <div id="quizBeltBadge" class="current-badge">9th Kyu</div>
+            </div>
+
+            <div class="direction-box">
+                <div class="direction-text">Mode: <strong id="quizDirectionLabel">Japanese ➔ English</strong></div>
+                <button class="swap-direction-btn" onclick="toggleTranslationDirection()">Flip Direction</button>
+            </div>
+
+            <div class="quiz-header-container">
+                <h3>Syllabus Quiz</h3>
+                <p>10 random items selected from your grade. Tap any card to reveal translation.</p>
+            </div>
+
+            <div id="quizScoreboard" class="quiz-score-tracker">
+                Answered: 0 / 10 &nbsp;|&nbsp; Current Score: 0
+            </div>
+
+            <div class="global-controls">
+                <button id="btnNewQuiz" class="control-btn quiz-action-btn" style="flex: auto;" onclick="startQuizMode()">New Random Quiz</button>
+            </div>
+
+            <div id="quizCardsContainer" class="cards-list" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- GLOBAL DYNAMIC NOTIFICATION MODAL -->
+    <div id="globalModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalHeaderTitle">Heading</h3>
+            <div id="modalScoreContainer" class="score-display-highlight"></div>
+            <p id="modalDescriptionMessage">Message goes here.</p>
+            <button class="modal-close-btn" id="modalActionBtn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const masterDictionary = {
+            stances: [
+                { id: "ST1", japanese: "Zenkutsu Dachi", english: "Front stance" },
+                { id: "ST2", japanese: "Kokutsu Dachi", english: "Back stance" },
+                { id: "ST3", japanese: "Shiko dachi", english: "Square / sumo stance" },
+                { id: "ST4", japanese: "Neko-ashi dachi", english: "Cat stance" }
+            ],
+            techniques: [
+                { id: "TE1", japanese: "Kette Junzuki", english: "Stepping front kick, lunge punch" },
+                { id: "TE2", japanese: "Kette Gyakuzuki", english: "Stepping front kick, reverse punch" },
+                { id: "TE3", japanese: "Soto uke, Gyakuzuki", english: "Stepping outer receipt, reverse punch" },
+                { id: "TE4", japanese: "Uchi uke, Gyakuzuki", english: "Stepping inner receipt, reverse punch" },
+                { id: "TE5", japanese: "Tobikomizuki (from shizentai)", english: "Jab from natural stance" },
+                { id: "TE6", japanese: "Shuto uke", english: "Stepping knife hand receipt" },
+                { id: "TE7", japanese: "Maegeri", english: "Front kick" },
+                { id: "TE8", japanese: "Mawashigeri", english: "Roundhouse kick" },
+                { id: "TE9", japanese: "Yokogeri", english: "Side kick" },
+                { id: "TE10", japanese: "Ushirogeri", english: "Back kick" },
+                { id: "TE11", japanese: "Kagizuki", english: "Rear hand hook punch" },
+                { id: "TE12", japanese: "Kagi-Shotai", english: "Rear hand hooking palm heel" },
+                { id: "TE13", japanese: "Hizageri", english: "Stepping knee kick" },
+                { id: "TE14", japanese: "Agezuki", english: "Rear hand uppercut" },
+                { id: "TE15", japanese: "Ashi Barai", english: "Foot sweep" },
+                { id: "TE16", japanese: "Junzuki", english: "Lunge punch" },
+                { id: "TE17", japanese: "Gyakuzuki", english: "Reverse punch or cross" },
+                { id: "TE18", japanese: "Jodan Uke", english: "Upper receipt" },
+                { id: "TE19", japanese: "Tobikomizuki", english: "Jab from natural stance" },
+                { id: "TE20", japanese: "Gedan barai", english: "Lower sweeping" },
+                { id: "TE21", japanese: "Shotai uchi", english: "Palm heel strike" },
+                { id: "TE22", japanese: "Mawashi Empie", english: "Elbow" },
+                { id: "TE23", japanese: "Otoshi Tettsui", english: "Dropping hammer fist" },
+                { id: "TE24", japanese: "Kingeri", english: "Groin kick" },
+                { id: "TE25", japanese: "Uchi uke", english: "Inner receipt" },
+                { id: "TE26", japanese: "Soto uke", english: "Outer receipt" }
+            ],
+            combinations: [
+                { id: "CO1", japanese: "Tobikomizuki > Gyakuzuki", english: "Jab > Cross" },
+                { id: "CO2", japanese: "Surikomi Kingeri > Gyakuzuki", english: "Step up with the rear foot > groin kick with the lead leg > cross" },
+                { id: "CO3", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki", english: "Jab > Cross > Hook" },
+                { id: "CO4", japanese: "Shotai > Shotai > Kagi-shotai > Shotai", english: "Palm heel Jab > Palm Heel cross > Palm Heel Hook" },
+                { id: "CO5", japanese: "Tobikomizuki > Surikomi kingeri >", english: "Jab > step up Groin kick" },
+                { id: "CO6", japanese: "Shotai > Shotai > Shotai > Otoshi Tettsui", english: "Palm Heels > Cross > Cross > Cross > Dropping hammer fist" },
+                { id: "CO7", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki", english: "Jab > Cross > Hook > Cross" },
+                { id: "CO8", japanese: "Shotai > Shotai > Kagi-shotai > Shotai", english: "Palm heel > Palm heel > hooking Palm heel > Palm heel" },
+                { id: "CO9", japanese: "Tobikomizuki > Surikomi Mawashigeri > Gyakuzuki > Kagizuki", english: "Jab > step up Roundhouse kick > Cross > Lead hand hook" },
+                { id: "CO10", japanese: "Mawashi Empi > Mawashi Empi > Hizageri", english: "Lead round elbow > rear round elbow > Knee kick (rear leg) with neck grab > Drop back regain posture" },
+                { id: "CO11", japanese: "Maegeri > Gyakuzuki > Kagizuki > Gyakuzuki", english: "Lead leg front kick > rear hand straight punch > lead hand hook > rear hand straight" },
+                { id: "CO12", japanese: "Agezuki > Gyakuzuki > Kagizuki > Kagizuki", english: "Rear hand uppercut > rear hand straight punch > lead hand hook punch > rear hand hook punch" },
+                { id: "CO13", japanese: "Maegeri > Gyakuzuki > Kagizuki > Agezuki", english: "Rear leg front kick > drop back - rear hand straight > lead hand hook (45 degrees) > rear hand uppercut (45 degrees)" },
+                { id: "CO14", japanese: "Tobikomizuki > Surikomi Kingeri > Gyakuzuki > Mawashigeri", english: "Jab > step up groin kick > rear hand straight punch > rear leg roundhouse to thigh > drop back" },
+                { id: "CO15", japanese: "Shotai > Shotai > Mawashi Empi > Mawashi Empi > Hizageri > otoshi tettsui > Gedan yokogeri", english: "Lead hand neck grab (datum set) > rear hand palm heel > rear hand palm heel > rear horizontal elbow > rear horizontal elbow > rear knee > drag forwards and angle off at 90 degrees > rear hand dropping hammer fist > shift sideways and stamp on leg" },
+                { id: "CO16", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki > Hizageri", english: "Jab > straight punch > hook > straight punch > knee" },
+                { id: "CO17", japanese: "Kingeri > Shotai > Kagi-shotai > Otoshi Tettsui", english: "groin kick > palm heel > hooking palm heel > hammer fist" },
+                { id: "CO18", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki > Hizageri > Kingeri > Shotai > Kagi-Shotai > Otoshi Tettsui", english: "Jab > straight punch > hook > straight punch > knee > groin kick > palm heel > hooking palm heel > hammer fist" },
+                { id: "CO19", japanese: "Tobikomizuki > Mawashigeri > Gyakuzuki > Mawashigeri > Junzuki", english: "Jab > roundhouse > cross > roundhouse > lunge punch" },
+                { id: "CO20", japanese: "Tobikomizuki > Kagizuki > Agezuki > Gyakuzuki", english: "Jab > hook > uppercut > cross" }
+            ],
+            kata: [
+                { id: "KA1", japanese: "Pinan Shodan", english: "Safe from harm Level 1" },
+                { id: "KA2", japanese: "Pinan Nidan", english: "Safe from harm Level 2" },
+                { id: "KA3", japanese: "Pinan Sandan", english: "Safe from harm Level 3" },
+                { id: "KA4", japanese: "Pinan Yondan", english: "Safe from harm Level 4" },
+                { id: "KA5", japanese: "Pinan Godan", english: "Safe from harm Level 5" }
+            ],
+            throws: [
+                { id: "TH1", japanese: "O-sotogari", english: "Major outer reaping throw" },
+                { id: "TH2", japanese: "Ippon Seoi Nage", english: "One arm shoulder throw" },
+                { id: "TH3", japanese: "O-goshi", english: "Major hip throw" },
+                { id: "TH4", japanese: "Soto makikomi", english: "Outer winding throw" },
+                { id: "TH5", japanese: "Koshi guruma", english: "Hip wheel (cross-buttocks throw)" },
+                { id: "TH6", japanese: "Ukemi", english: "Breakfall" }
+            ]
+        };
+
+        const kyuGrades = {
+            "9th Kyu": {
+                status: "active", labelShort: "9 Kyu", colorName: "Red", colorHex: "#a62c2c", accentHex: "#ec7063", isDarkText: false,
+                requirements: { stances: ["ST1"], techniques: ["TE6", "TE7", "TE8", "TE13", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24"], combinations: ["CO1", "CO2"], kata: ["KA1"], throws: ["TH6"] }
+            },
+            "8th Kyu": {
+                status: "active", labelShort: "8 Kyu", colorName: "Yellow", colorHex: "#d9a406", accentHex: "#f9e79f", isDarkText: true,
+                requirements: { stances: ["ST1", "ST2", "ST4"], techniques: ["TE6", "TE7", "TE8", "TE11", "TE13", "TE15", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24", "TE25", "TE26"], combinations: ["CO3", "CO4", "CO5", "CO6"], kata: ["KA1"], throws: ["TH1", "TH4", "TH6"] }
+            },
+            "7th Kyu": {
+                status: "active", labelShort: "7 Kyu", colorName: "Orange", colorHex: "#c66315", accentHex: "#f5b041", isDarkText: false,
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE6", "TE7", "TE8", "TE9", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO7", "CO8", "CO9", "CO10"], kata: ["KA1", "KA2"], throws: ["TH1", "TH3", "TH4", "TH6"] }
+            },
+            "6th Kyu": {
+                status: "active", labelShort: "6 Kyu", colorName: "Green", colorHex: "#1e7e43", accentHex: "#58d68d", isDarkText: false,
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO11", "CO12", "CO13", "CO14"], kata: ["KA1", "KA2", "KA3"], throws: ["TH2", "TH5", "TH6"] }
+            },
+            "5th Kyu": {
+                status: "active", labelShort: "5 Kyu", colorName: "Blue", colorHex: "#1461aa", accentHex: "#5dade2", isDarkText: false,
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE14"], combinations: ["CO15", "CO16", "CO17"], kata: ["KA1", "KA2", "KA3", "KA4"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
+            },
+            "4th Kyu": {
+                status: "active", labelShort: "4 Kyu", colorName: "Purple", colorHex: "#683082", accentHex: "#b57edc", isDarkText: false,
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE5", "TE6", "TE7", "TE8", "TE9", "TE10"], combinations: ["CO18", "CO19", "CO20"], kata: ["KA1", "KA2", "KA3", "KA4", "KA5"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
+            },
+            "3rd Kyu": { status: "coming_soon", labelShort: "3 Kyu", colorName: "Brown", colorHex: "#4a2e18", accentHex: "#a67c52", isDarkText: false },
+            "2nd Kyu": { status: "coming_soon", labelShort: "2 Kyu", colorName: "Brown", colorHex: "#4a2e18", stripeColor: "#ffffff", isDarkText: false, cleanLabel: "Brown/White Belt" },
+            "1st Kyu": { status: "coming_soon", labelShort: "1 Kyu", colorName: "Brown", colorHex: "#4a2e18", stripeColor: "#000000", isDarkText: false, cleanLabel: "Brown/Black Belt" }
+        };
+
+        let currentSelectedKyu = "9th Kyu";
+        let isJapaneseToEnglish = true; 
+        let currentQuizItemsPool = [];   
+        
+        let quizTotalToAnswer = 0;
+        let quizAnsweredCount = 0;
+        let quizCorrectScore = 0;
+
+        function renderTileStack() {
+            const gridContainer = document.getElementById("tileGrid");
+            gridContainer.innerHTML = "";
+
+            Object.keys(kyuGrades).forEach(kyu => {
+                const info = kyuGrades[kyu];
+                const tile = document.createElement("button");
+                tile.className = "kyu-tile";
+                tile.style.setProperty('--tile-accent-color', info.colorHex);
+                
+                const pill = document.createElement("span");
+                pill.className = `rank-pill ${info.isDarkText ? 'dark-text-pill' : ''}`;
+                pill.innerText = info.labelShort;
+                tile.appendChild(pill);
+
+                const label = document.createElement("span");
+                label.className = "rank-label";
+                label.innerText = info.cleanLabel || `${info.colorName} Belt`;
+                tile.appendChild(label);
+
+                if (info.stripeColor) {
+                    const stripe = document.createElement("div");
+                    stripe.className = "tile-stripe";
+                    stripe.style.backgroundColor = info.stripeColor;
+                    tile.appendChild(stripe);
+                }
+
+                tile.onclick = () => selectBelt(kyu);
+                gridContainer.appendChild(tile);
+            });
+        }
+
+        function selectBelt(kyu) {
+            const gradeInfo = kyuGrades[kyu];
+            if (gradeInfo.status === "coming_soon") {
+                showModal("Coming Soon", `${kyu} translation trainer modules are coming soon!`, "");
+                return;
+            }
+
+            currentSelectedKyu = kyu;
+            document.documentElement.style.setProperty('--theme-color', gradeInfo.colorHex);
+            document.documentElement.style.setProperty('--theme-accent', gradeInfo.accentHex || gradeInfo.colorHex);
+
+            const dynamicButtons = ["btnShowAll", "btnReset", "modalActionBtn"];
+            dynamicButtons.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.background = gradeInfo.colorHex;
+                    el.style.color = gradeInfo.isDarkText ? "#000000" : "#ffffff";
+                }
+            });
+
+            document.getElementById("btnQuiz").style.borderColor = gradeInfo.colorHex;
+            document.getElementById("btnNewQuiz").style.borderColor = gradeInfo.colorHex;
+
+            const badges = ["currentBeltBadge", "quizBeltBadge"];
+            badges.forEach(id => {
+                const badge = document.getElementById(id);
+                badge.innerText = kyu;
+                badge.style.backgroundColor = gradeInfo.colorHex;
+                if (gradeInfo.isDarkText) {
+                    badge.classList.add("belt-dark-text-badge");
+                } else {
+                    badge.classList.remove("belt-dark-text-badge");
+                }
+            });
+
+            updateDirectionLabels();
+            renderAllSyllabusSections();
+
+            document.getElementById("landingScreen").classList.remove("active");
+            document.getElementById("quizScreen").classList.remove("active");
+            document.getElementById("trainerScreen").classList.add("active");
+            window.scrollTo(0,0);
+        }
+
+        function toggleTranslationDirection() {
+            isJapaneseToEnglish = !isJapaneseToEnglish;
+            updateDirectionLabels();
+            
+            if (document.getElementById("trainerScreen").classList.contains("active")) {
+                renderAllSyllabusSections();
+            } else if (document.getElementById("quizScreen").classList.contains("active")) {
+                startQuizMode();
+            }
+        }
+
+        function updateDirectionLabels() {
+            const labelText = isJapaneseToEnglish ? "Japanese ➔ English" : "English ➔ Japanese";
+            document.getElementById("trainerDirectionLabel").innerText = labelText;
+            document.getElementById("quizDirectionLabel").innerText = labelText;
+        }
+
+        function renderAllSyllabusSections() {
+            const keys = ["techniques", "combinations", "throws", "stances", "kata"];
+            const containers = {
+                techniques: "techniquesContainer",
+                combinations: "combinationsContainer",
+                throws: "throwsContainer",
+                stances: "stancesContainer",
+                kata: "kataContainer"
+            };
+
+            const gradeRequirements = kyuGrades[currentSelectedKyu].requirements;
+
+            keys.forEach(key => {
+                const container = document.getElementById(containers[key]);
+                container.innerHTML = "";
+
+                const requiredIds = gradeRequirements[key] || [];
+                const masterList = masterDictionary[key];
+                const activeItems = masterList.filter(item => requiredIds.includes(item.id));
+
+                if (activeItems.length === 0) {
+                    container.innerHTML = `<div class="empty-state">No required items for this grade.</div>`;
+                } else {
+                    activeItems.forEach(item => {
+                        const card = document.createElement("div");
+                        card.className = "flashcard";
+                        
+                        const promptText = isJapaneseToEnglish ? item.japanese : item.english;
+                        const answerText = isJapaneseToEnglish ? item.english : item.japanese;
+
+                        card.innerHTML = `
+                            <div class="card-prompt">${promptText}</div>
+                            <div class="card-answer">${answerText}</div>
+                        `;
+                        card.onclick = () => card.classList.toggle("revealed");
+                        container.appendChild(card);
+                    });
+                }
+            });
+        }
+
+        function startQuizMode() {
+            const gradeRequirements = kyuGrades[currentSelectedKyu].requirements;
+            let allEligibleItems = [];
+
+            Object.keys(gradeRequirements).forEach(categoryKey => {
+                const requiredIds = gradeRequirements[categoryKey];
+                const masterList = masterDictionary[categoryKey];
+                const matchedItems = masterList.filter(item => requiredIds.includes(item.id));
+                allEligibleItems = allEligibleItems.concat(matchedItems);
+            });
+
+            for (let i = allEligibleItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allEligibleItems[i], allEligibleItems[j]] = [allEligibleItems[j], allEligibleItems[i]];
+            }
+
+            currentQuizItemsPool = allEligibleItems.slice(0, Math.min(10, allEligibleItems.length));
+            
+            quizTotalToAnswer = currentQuizItemsPool.length;
+            quizAnsweredCount = 0;
+            quizCorrectScore = 0;
+            
+            updateQuizScoreboardUI();
+            renderQuizCardsFromPool();
+
+            document.getElementById("trainerScreen").classList.remove("active");
+            document.getElementById("quizScreen").classList.add("active");
+            window.scrollTo(0,0);
+        }
+
+        function updateQuizScoreboardUI() {
+            const scoreboard = document.getElementById("quizScoreboard");
+            scoreboard.innerText = `Answered: ${quizAnsweredCount} / ${quizTotalToAnswer}   |   Current Score: ${quizCorrectScore}`;
+        }
+
+        function renderQuizCardsFromPool() {
+            const quizContainer = document.getElementById("quizCardsContainer");
+            quizContainer.innerHTML = "";
+
+            if (currentQuizItemsPool.length === 0) {
+                quizContainer.innerHTML = `<div class="empty-state">No items loaded.</div>`;
+                return;
+            }
+
+            currentQuizItemsPool.forEach((item, index) => {
+                const card = document.createElement("div");
+                card.className = "flashcard";
+                card.id = `quizCard-${index}`;
+                
+                const promptText = isJapaneseToEnglish ? item.japanese : item.english;
+                const answerText = isJapaneseToEnglish ? item.english : item.japanese;
+
+                card.innerHTML = `
+                    <div class="card-prompt">${promptText}</div>
+                    <div class="card-answer">${answerText}</div>
+                    <div class="quiz-scoring-container" onclick="event.stopPropagation();">
+                        <button class="score-choice-btn btn-got-it" title="Correct" onclick="gradeQuizItem(${index}, true)">✓</button>
+                        <button class="score-choice-btn btn-missed-it" title="Incorrect" onclick="gradeQuizItem(${index}, false)">✗</button>
+                    </div>
+                `;
+                
+                card.onclick = () => card.classList.toggle("revealed");
+                quizContainer.appendChild(card);
+            });
+        }
+
+        function gradeQuizItem(cardIndex, isCorrect) {
+            const cardElement = document.getElementById(`quizCard-${cardIndex}`);
+            if (!cardElement || cardElement.classList.contains("quiz-graded")) return;
+
+            cardElement.classList.add("quiz-graded");
+            
+            if (isCorrect) {
+                quizCorrectScore++;
+            }
+            quizAnsweredCount++;
+            updateQuizScoreboardUI();
+
+            if (quizAnsweredCount >= quizTotalToAnswer) {
+                evaluateFinalQuizScore();
+            }
+        }
+
+        function evaluateFinalQuizScore() {
+            let title = "";
+            let feedbackMsg = "";
+
+            if (quizCorrectScore === 10) {
+                title = "Perfect!";
+                feedbackMsg = "Wow - Well done!";
+            } else if (quizCorrectScore >= 4 && quizCorrectScore <= 9) {
+                title = "Good Work";
+                feedbackMsg = "Not bad - keep at it";
+            } else {
+                title = "Keep Training";
+                feedbackMsg = "Oh dear - keep trying";
+            }
+
+            showModal(title, feedbackMsg, `${quizCorrectScore} / ${quizTotalToAnswer}`);
+        }
+
+        function showModal(header, description, scoreHighlight) {
+            document.getElementById("modalHeaderTitle").innerText = header;
+            document.getElementById("modalDescriptionMessage").innerText = description;
+            
+            const scoreBox = document.getElementById("modalScoreContainer");
+            if (scoreHighlight) {
+                scoreBox.innerText = scoreHighlight;
+                scoreBox.style.display = "block";
+            } else {
+                scoreBox.style.display = "none";
+            }
+
+            document.getElementById("globalModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("globalModal").style.display = "none";
+        }
+
+        function exitQuizMode() {
+            renderAllSyllabusSections();
+            document.getElementById("quizScreen").classList.remove("active");
+            document.getElementById("trainerScreen").classList.add("active");
+            window.scrollTo(0,0);
+        }
+
+        function revealAllTranslations() {
+            const cards = document.querySelectorAll(".screen.active .flashcard");
+            cards.forEach(card => card.classList.add("revealed"));
+        }
+
+        function resetAllTranslations() {
+            const cards = document.querySelectorAll(".screen.active .flashcard");
+            cards.forEach(card => card.classList.remove("revealed"));
+        }
+
+        function goToHome() {
+            document.getElementById("trainerScreen").classList.remove("active");
+            document.getElementById("quizScreen").classList.remove("active");
+            document.getElementById("landingScreen").classList.add("active");
+            window.scrollTo(0,0);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderTileStack();
+        });
+    </script>
+</body>
+</html>
