@@ -114,7 +114,6 @@
             border-radius: 8px;
             cursor: pointer;
             
-            /* Center aligned structural two-column grid track layout */
             display: grid;
             grid-template-columns: 75px 1fr;
             align-items: center;
@@ -601,7 +600,9 @@
                 { id: "ST1", japanese: "Zenkutsu Dachi", english: "Front stance" },
                 { id: "ST2", japanese: "Kokutsu Dachi", english: "Back stance" },
                 { id: "ST3", japanese: "Shiko dachi", english: "Square / sumo stance" },
-                { id: "ST4", japanese: "Neko-ashi dachi", english: "Cat stance" }
+                { id: "ST4", japanese: "Neko-ashi dachi", english: "Cat stance" },
+                { id: "ST5", japanese: "Hidari Hanmi Gamae", english: "Left fighting stance" },
+                { id: "ST6", japanese: "Migi Hanmi Gamae", english: "Right fighting stance" },
             ],
             techniques: [
                 { id: "TE1", japanese: "Kette Junzuki", english: "Stepping front kick, lunge punch" },
@@ -629,7 +630,9 @@
                 { id: "TE23", japanese: "Otoshi Tettsui", english: "Dropping hammer fist" },
                 { id: "TE24", japanese: "Kingeri", english: "Groin kick" },
                 { id: "TE25", japanese: "Uchi uke", english: "Inner receipt" },
-                { id: "TE26", japanese: "Soto uke", english: "Outer receipt" }
+                { id: "TE26", japanese: "Soto uke", english: "Outer receipt" },
+                { id: "TE27", japanese: "Nagashizuki (from shizentai)", english: "Flowing / slipping punch starting from a relaxed, natural ready stance" },
+                { id: "TE28", japanese: "Mawashigeri (Front leg)", english: "Front leg roundhouse kick" }
             ],
             combinations: [
                 { id: "CO1", japanese: "Tobikomizuki > Gyakuzuki", english: "Jab > Cross" },
@@ -658,7 +661,8 @@
                 { id: "KA2", japanese: "Pinan Nidan", english: "Safe from harm Level 2" },
                 { id: "KA3", japanese: "Pinan Sandan", english: "Safe from harm Level 3" },
                 { id: "KA4", japanese: "Pinan Yondan", english: "Safe from harm Level 4" },
-                { id: "KA5", japanese: "Pinan Godan", english: "Safe from harm Level 5" }
+                { id: "KA5", japanese: "Pinan Godan", english: "Safe from harm Level 5" },
+                { id: "KA6", japanese: "Kushanku", english: "Named after the creator of the Pinan Katas" }
             ],
             throws: [
                 { id: "TH1", japanese: "O-sotogari", english: "Major outer reaping throw" },
@@ -673,29 +677,38 @@
         const kyuGrades = {
             "9th Kyu": {
                 status: "active", labelShort: "9 Kyu", colorName: "Red", colorHex: "#a62c2c", accentHex: "#ec7063", isDarkText: false,
-                requirements: { stances: ["ST1"], techniques: ["TE6", "TE7", "TE8", "TE13", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24"], combinations: ["CO1", "CO2"], kata: ["KA1"], throws: ["TH6"] }
+                requirements: { stances: ["ST1", "ST5", "ST6"], techniques: ["TE6", "TE7", "TE8", "TE13", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24"], combinations: ["CO1", "CO2"], kata: ["KA1"], throws: ["TH6"] }
             },
             "8th Kyu": {
                 status: "active", labelShort: "8 Kyu", colorName: "Yellow", colorHex: "#d9a406", accentHex: "#f9e79f", isDarkText: true,
-                requirements: { stances: ["ST1", "ST2", "ST4"], techniques: ["TE6", "TE7", "TE8", "TE11", "TE13", "TE15", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24", "TE25", "TE26"], combinations: ["CO3", "CO4", "CO5", "CO6"], kata: ["KA1"], throws: ["TH1", "TH4", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST4", "ST5", "ST6"], techniques: ["TE6", "TE7", "TE8", "TE11", "TE13", "TE15", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24", "TE25", "TE26"], combinations: ["CO3", "CO4", "CO5", "CO6"], kata: ["KA1"], throws: ["TH1", "TH4", "TH6"] }
             },
             "7th Kyu": {
                 status: "active", labelShort: "7 Kyu", colorName: "Orange", colorHex: "#c66315", accentHex: "#f5b041", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE6", "TE7", "TE8", "TE9", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO7", "CO8", "CO9", "CO10"], kata: ["KA1", "KA2"], throws: ["TH1", "TH3", "TH4", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE6", "TE7", "TE8", "TE9", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO7", "CO8", "CO9", "CO10"], kata: ["KA1", "KA2"], throws: ["TH1", "TH3", "TH4", "TH6"] }
             },
             "6th Kyu": {
                 status: "active", labelShort: "6 Kyu", colorName: "Green", colorHex: "#1e7e43", accentHex: "#58d68d", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO11", "CO12", "CO13", "CO14"], kata: ["KA1", "KA2", "KA3"], throws: ["TH2", "TH5", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO11", "CO12", "CO13", "CO14"], kata: ["KA1", "KA2", "KA3"], throws: ["TH2", "TH5", "TH6"] }
             },
             "5th Kyu": {
                 status: "active", labelShort: "5 Kyu", colorName: "Blue", colorHex: "#1461aa", accentHex: "#5dade2", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE14"], combinations: ["CO15", "CO16", "CO17"], kata: ["KA1", "KA2", "KA3", "KA4"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE14"], combinations: ["CO15", "CO16", "CO17"], kata: ["KA1", "KA2", "KA3", "KA4"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
             },
             "4th Kyu": {
                 status: "active", labelShort: "4 Kyu", colorName: "Purple", colorHex: "#683082", accentHex: "#b57edc", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE5", "TE6", "TE7", "TE8", "TE9", "TE10"], combinations: ["CO18", "CO19", "CO20"], kata: ["KA1", "KA2", "KA3", "KA4", "KA5"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE5", "TE6", "TE7", "TE8", "TE9", "TE10"], combinations: ["CO18", "CO19", "CO20"], kata: ["KA1", "KA2", "KA3", "KA4", "KA5"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
             },
-            "3rd Kyu": { status: "coming_soon", labelShort: "3 Kyu", colorName: "Brown", colorHex: "#4a2e18", accentHex: "#a67c52", isDarkText: false },
+            "3rd Kyu": {
+                status: "active", labelShort: "3 Kyu", colorName: "Brown", colorHex: "#4a2e18", accentHex: "#a67c52", isDarkText: false,
+                requirements: { 
+                    stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], 
+                    techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE27", "TE28"], 
+                    combinations: ["CO1", "CO2", "CO3", "CO4", "CO5", "CO6", "CO7", "CO8", "CO9", "CO10", "CO11", "CO12", "CO13", "CO14", "CO15", "CO16", "CO17", "CO18", "CO19", "CO20"], 
+                    kata: ["KA1", "KA2", "KA3", "KA4", "KA5", "KA6"], 
+                    throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] 
+                }
+            },
             "2nd Kyu": { status: "coming_soon", labelShort: "2 Kyu", colorName: "Brown", colorHex: "#4a2e18", stripeColor: "#ffffff", isDarkText: false, cleanLabel: "Brown/White Belt" },
             "1st Kyu": { status: "coming_soon", labelShort: "1 Kyu", colorName: "Brown", colorHex: "#4a2e18", stripeColor: "#000000", isDarkText: false, cleanLabel: "Brown/Black Belt" }
         };
