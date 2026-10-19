@@ -252,15 +252,16 @@
 
         .global-controls {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 1.5rem;
             width: 100%;
         }
 
         .control-btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 0.95rem;
+            flex: 1 1 calc(50% - 4px);
+            padding: 12px 8px;
+            font-size: 0.85rem;
             border: none;
             border-radius: 10px;
             background: var(--theme-color);
@@ -270,6 +271,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             transition: opacity 0.2s;
+            text-align: center;
         }
 
         .control-btn:active {
@@ -340,6 +342,15 @@
             color: var(--text-light);
         }
 
+        .pronunciation-sub {
+            display: none;
+            font-size: 0.9rem;
+            color: #a0a0c0;
+            font-style: italic;
+            margin-top: 3px;
+            font-weight: 400;
+        }
+
         .card-answer {
             display: none;
             color: #ffd166; 
@@ -349,6 +360,11 @@
         }
 
         .flashcard.revealed .card-answer {
+            display: block;
+        }
+
+        /* Show pronunciation attached to answer when in English -> Japanese mode */
+        .flashcard.revealed .japanese-answer-group .pronunciation-sub {
             display: block;
         }
 
@@ -521,6 +537,7 @@
             <div class="global-controls">
                 <button id="btnShowAll" class="control-btn" onclick="revealAllTranslations()">Show All</button>
                 <button id="btnReset" class="control-btn" onclick="resetAllTranslations()">Reset</button>
+                <button id="btnPron" class="control-btn quiz-action-btn" onclick="togglePronunciation()">Pronunciation: OFF</button>
                 <button id="btnQuiz" class="control-btn quiz-action-btn" onclick="startQuizMode()">Take a Quiz</button>
             </div>
 
@@ -577,7 +594,8 @@
             </div>
 
             <div class="global-controls">
-                <button id="btnNewQuiz" class="control-btn quiz-action-btn" style="flex: auto;" onclick="startQuizMode()">New Random Quiz</button>
+                <button id="btnQuizPron" class="control-btn quiz-action-btn" onclick="togglePronunciation()">Pronunciation: OFF</button>
+                <button id="btnNewQuiz" class="control-btn quiz-action-btn" onclick="startQuizMode()">New Random Quiz</button>
             </div>
 
             <div id="quizCardsContainer" class="cards-list" style="margin-top: 10px;"></div>
@@ -597,114 +615,110 @@
     <script>
         const masterDictionary = {
             stances: [
-                { id: "ST1", japanese: "Zenkutsu Dachi", english: "Front stance" },
-                { id: "ST2", japanese: "Kokutsu Dachi", english: "Back stance" },
-                { id: "ST3", japanese: "Shiko dachi", english: "Square / sumo stance" },
-                { id: "ST4", japanese: "Neko-ashi dachi", english: "Cat stance" },
-                { id: "ST5", japanese: "Hidari Hanmi Gamae", english: "Left fighting stance" },
-                { id: "ST6", japanese: "Migi Hanmi Gamae", english: "Right fighting stance" },
-				{ id: "ST7", japanese: "Jigotai", english: "Defensive body posture" }
-				
+                { id: "ST1", japanese: "Zenkutsu Dachi", pron: "zen-koot-soo dah-chee", english: "Front stance" },
+                { id: "ST2", japanese: "Kokutsu Dachi", pron: "koh-koot-soo dah-chee", english: "Back stance" },
+                { id: "ST3", japanese: "Shiko dachi", pron: "shee-koh dah-chee", english: "Square / sumo stance" },
+                { id: "ST4", japanese: "Neko-ashi dachi", pron: "neh-koh ah-shee dah-chee", english: "Cat stance" }
             ],
             techniques: [
-                { id: "TE1", japanese: "Kette Junzuki", english: "Stepping front kick, lunge punch" },
-                { id: "TE2", japanese: "Kette Gyakuzuki", english: "Stepping front kick, reverse punch" },
-                { id: "TE3", japanese: "Soto uke, Gyakuzuki", english: "Stepping outer receipt, reverse punch" },
-                { id: "TE4", japanese: "Uchi uke, Gyakuzuki", english: "Stepping inner receipt, reverse punch" },
-                { id: "TE5", japanese: "Tobikomizuki (from shizentai)", english: "Jab from natural stance" },
-                { id: "TE6", japanese: "Shuto uke", english: "Stepping knife hand receipt" },
-                { id: "TE7", japanese: "Maegeri", english: "Front kick" },
-                { id: "TE8", japanese: "Mawashigeri", english: "Roundhouse kick" },
-                { id: "TE9", japanese: "Yokogeri", english: "Side kick" },
-                { id: "TE10", japanese: "Ushirogeri", english: "Back kick" },
-                { id: "TE11", japanese: "Kagizuki", english: "Rear hand hook punch" },
-                { id: "TE12", japanese: "Kagi-Shotai", english: "Rear hand hooking palm heel" },
-                { id: "TE13", japanese: "Hizageri", english: "Stepping knee kick" },
-                { id: "TE14", japanese: "Agezuki", english: "Rear hand uppercut" },
-                { id: "TE15", japanese: "Ashi Barai", english: "Foot sweep" },
-                { id: "TE16", japanese: "Junzuki", english: "Lunge punch" },
-                { id: "TE17", japanese: "Gyakuzuki", english: "Reverse punch or cross" },
-                { id: "TE18", japanese: "Jodan Uke", english: "Upper receipt" },
-                { id: "TE19", japanese: "Tobikomizuki", english: "Jab from natural stance" },
-                { id: "TE20", japanese: "Gedan barai", english: "Lower sweeping" },
-                { id: "TE21", japanese: "Shotai uchi", english: "Palm heel strike" },
-                { id: "TE22", japanese: "Mawashi Empie", english: "Elbow" },
-                { id: "TE23", japanese: "Otoshi Tettsui", english: "Dropping hammer fist" },
-                { id: "TE24", japanese: "Kingeri", english: "Groin kick" },
-                { id: "TE25", japanese: "Uchi uke", english: "Inner receipt" },
-                { id: "TE26", japanese: "Soto uke", english: "Outer receipt" },
-                { id: "TE27", japanese: "Nagashizuki (from shizentai)", english: "Flowing / slipping punch starting from a relaxed, natural ready stance" },
-                { id: "TE28", japanese: "Mawashigeri (Front leg)", english: "Front leg roundhouse kick" }
+                { id: "TE1", japanese: "Kette Junzuki", pron: "keh-teh joon-zoo-kee", english: "Stepping front kick, lunge punch" },
+                { id: "TE2", japanese: "Kette Gyakuzuki", pron: "keh-teh gyah-koo-zoo-kee", english: "Stepping front kick, reverse punch" },
+                { id: "TE3", japanese: "Soto uke, Gyakuzuki", pron: "soh-toh oo-keh, gyah-koo-zoo-kee", english: "Stepping outer receipt, reverse punch" },
+                { id: "TE4", japanese: "Uchi uke, Gyakuzuki", pron: "oo-chee oo-keh, gyah-koo-zoo-kee", english: "Stepping inner receipt, reverse punch" },
+                { id: "TE5", japanese: "Tobikomizuki (from shizentai)", pron: "toh-bee-koh-mee-zoo-kee (shee-zen-tye)", english: "Jab from natural stance" },
+                { id: "TE6", japanese: "Shuto uke", pron: "shoo-toh oo-keh", english: "Stepping knife hand receipt" },
+                { id: "TE7", japanese: "Maegeri", pron: "mah-eh-geh-ree", english: "Front kick" },
+                { id: "TE8", japanese: "Mawashigeri", pron: "mah-wah-shee-geh-ree", english: "Roundhouse kick" },
+                { id: "TE9", japanese: "Yokogeri", pron: "yoh-koh-geh-ree", english: "Side kick" },
+                { id: "TE10", japanese: "Ushirogeri", pron: "oo-shee-roh-geh-ree", english: "Back kick" },
+                { id: "TE11", japanese: "Kagizuki", pron: "kah-gee-zoo-kee", english: "Rear hand hook punch" },
+                { id: "TE12", japanese: "Kagi-Shotai", pron: "kah-gee shoh-tye", english: "Rear hand hooking palm heel" },
+                { id: "TE13", japanese: "Hizageri", pron: "hee-zah-geh-ree", english: "Stepping knee kick" },
+                { id: "TE14", japanese: "Agezuki", pron: "ah-geh-zoo-kee", english: "Rear hand uppercut" },
+                { id: "TE15", japanese: "Ashi Barai", pron: "ah-shee bah-rye", english: "Foot sweep" },
+                { id: "TE16", japanese: "Junzuki", pron: "joon-zoo-kee", english: "Lunge punch" },
+                { id: "TE17", japanese: "Gyakuzuki", pron: "gyah-koo-zoo-kee", english: "Reverse punch or cross" },
+                { id: "TE18", japanese: "Jodan Uke", pron: "joh-dan oo-keh", english: "Upper receipt" },
+                { id: "TE19", japanese: "Tobikomizuki", pron: "toh-bee-koh-mee-zoo-kee", english: "Jab from natural stance" },
+                { id: "TE20", japanese: "Gedan barai", pron: "geh-dan bah-rye", english: "Lower sweeping" },
+                { id: "TE21", japanese: "Shotai uchi", pron: "shoh-tye oo-chee", english: "Palm heel strike" },
+                { id: "TE22", japanese: "Mawashi Empie", pron: "mah-wah-shee ehm-pee", english: "Elbow" },
+                { id: "TE23", japanese: "Otoshi Tettsui", pron: "oh-toh-shee teht-soo-ee", english: "Dropping hammer fist" },
+                { id: "TE24", japanese: "Kingeri", pron: "keen-geh-ree", english: "Groin kick" },
+                { id: "TE25", japanese: "Uchi uke", pron: "oo-chee oo-keh", english: "Inner receipt" },
+                { id: "TE26", japanese: "Soto uke", pron: "soh-toh oo-keh", english: "Outer receipt" },
+                { id: "TE27", japanese: "Nagashizuki (from shizentai)", pron: "nah-gah-shee-zoo-kee (shee-zen-tye)", english: "Flowing / slipping punch starting from a relaxed, natural ready stance" },
+                { id: "TE28", japanese: "Mawashigeri (Front leg)", pron: "mah-wah-shee-geh-ree", english: "Front leg roundhouse kick" }
             ],
             combinations: [
-                { id: "CO1", japanese: "Tobikomizuki > Gyakuzuki", english: "Jab > Cross" },
-                { id: "CO2", japanese: "Surikomi Kingeri > Gyakuzuki", english: "Step up with the rear foot > groin kick with the lead leg > cross" },
-                { id: "CO3", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki", english: "Jab > Cross > Hook" },
-                { id: "CO4", japanese: "Shotai > Shotai > Kagi-shotai > Shotai", english: "Palm heel Jab > Palm Heel cross > Palm Heel Hook" },
-                { id: "CO5", japanese: "Tobikomizuki > Surikomi kingeri >", english: "Jab > step up Groin kick" },
-                { id: "CO6", japanese: "Shotai > Shotai > Shotai > Otoshi Tettsui", english: "Palm Heels > Cross > Cross > Cross > Dropping hammer fist" },
-                { id: "CO7", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki", english: "Jab > Cross > Hook > Cross" },
-                { id: "CO8", japanese: "Shotai > Shotai > Kagi-shotai > Shotai", english: "Palm heel > Palm heel > hooking Palm heel > Palm heel" },
-                { id: "CO9", japanese: "Tobikomizuki > Surikomi Mawashigeri > Gyakuzuki > Kagizuki", english: "Jab > step up Roundhouse kick > Cross > Lead hand hook" },
-                { id: "CO10", japanese: "Mawashi Empi > Mawashi Empi > Hizageri", english: "Lead round elbow > rear round elbow > Knee kick (rear leg) with neck grab > Drop back regain posture" },
-                { id: "CO11", japanese: "Maegeri > Gyakuzuki > Kagizuki > Gyakuzuki", english: "Lead leg front kick > rear hand straight punch > lead hand hook > rear hand straight" },
-                { id: "CO12", japanese: "Agezuki > Gyakuzuki > Kagizuki > Kagizuki", english: "Rear hand uppercut > rear hand straight punch > lead hand hook punch > rear hand hook punch" },
-                { id: "CO13", japanese: "Maegeri > Gyakuzuki > Kagizuki > Agezuki", english: "Rear leg front kick > drop back - rear hand straight > lead hand hook (45 degrees) > rear hand uppercut (45 degrees)" },
-                { id: "CO14", japanese: "Tobikomizuki > Surikomi Kingeri > Gyakuzuki > Mawashigeri", english: "Jab > step up groin kick > rear hand straight punch > rear leg roundhouse to thigh > drop back" },
-                { id: "CO15", japanese: "Shotai > Shotai > Mawashi Empi > Mawashi Empi > Hizageri > otoshi tettsui > Gedan yokogeri", english: "Lead hand neck grab (datum set) > rear hand palm heel > rear hand palm heel > rear horizontal elbow > rear horizontal elbow > rear knee > drag forwards and angle off at 90 degrees > rear hand dropping hammer fist > shift sideways and stamp on leg" },
-                { id: "CO16", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki > Hizageri", english: "Jab > straight punch > hook > straight punch > knee" },
-                { id: "CO17", japanese: "Kingeri > Shotai > Kagi-shotai > Otoshi Tettsui", english: "groin kick > palm heel > hooking palm heel > hammer fist" },
-                { id: "CO18", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki > Hizageri > Kingeri > Shotai > Kagi-Shotai > Otoshi Tettsui", english: "Jab > straight punch > hook > straight punch > knee > groin kick > palm heel > hooking palm heel > hammer fist" },
-                { id: "CO19", japanese: "Tobikomizuki > Mawashigeri > Gyakuzuki > Mawashigeri > Junzuki", english: "Jab > roundhouse > cross > roundhouse > lunge punch" },
-                { id: "CO20", japanese: "Tobikomizuki > Kagizuki > Agezuki > Gyakuzuki", english: "Jab > hook > uppercut > cross" }
+                { id: "CO1", japanese: "Tobikomizuki > Gyakuzuki", pron: "toh-bee-koh-mee-zoo-kee, gyah-koo-zoo-kee", english: "Jab > Cross" },
+                { id: "CO2", japanese: "Surikomi Kingeri > Gyakuzuki", pron: "soo-ree-koh-mee keen-geh-ree, gyah-koo-zoo-kee", english: "Step up with the rear foot > groin kick with the lead leg > cross" },
+                { id: "CO3", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki", pron: "toh-bee-koh-mee-zoo-kee, gyah-koo-zoo-kee, kah-gee-zoo-kee", english: "Jab > Cross > Hook" },
+                { id: "CO4", japanese: "Shotai > Shotai > Kagi-shotai > Shotai", pron: "shoh-tye, shoh-tye, kah-gee shoh-tye, shoh-tye", english: "Palm heel Jab > Palm Heel cross > Palm Heel Hook" },
+                { id: "CO5", japanese: "Tobikomizuki > Surikomi kingeri >", pron: "toh-bee-koh-mee-zoo-kee, soo-ree-koh-mee keen-geh-ree", english: "Jab > step up Groin kick" },
+                { id: "CO6", japanese: "Shotai > Shotai > Shotai > Otoshi Tettsui", pron: "shoh-tye, shoh-tye, shoh-tye, oh-toh-shee teht-soo-ee", english: "Palm Heels > Cross > Cross > Cross > Dropping hammer fist" },
+                { id: "CO7", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki", pron: "toh-bee-koh-mee-zoo-kee, gyah-koo-zoo-kee, kah-gee-zoo-kee, gyah-koo-zoo-kee", english: "Jab > Cross > Hook > Cross" },
+                { id: "CO8", japanese: "Shotai > Shotai > Kagi-shotai > Shotai", pron: "shoh-tye, shoh-tye, kah-gee shoh-tye, shoh-tye", english: "Palm heel > Palm heel > hooking Palm heel > Palm heel" },
+                { id: "CO9", japanese: "Tobikomizuki > Surikomi Mawashigeri > Gyakuzuki > Kagizuki", pron: "toh-bee-koh-mee-zoo-kee, soo-ree-koh-mee mah-wah-shee-geh-ree, gyah-koo-zoo-kee, kah-gee-zoo-kee", english: "Jab > step up Roundhouse kick > Cross > Lead hand hook" },
+                { id: "CO10", japanese: "Mawashi Empi > Mawashi Empi > Hizageri", pron: "mah-wah-shee ehm-pee, mah-wah-shee ehm-pee, hee-zah-geh-ree", english: "Lead round elbow > rear round elbow > Knee kick (rear leg) with neck grab > Drop back regain posture" },
+                { id: "CO11", japanese: "Maegeri > Gyakuzuki > Kagizuki > Gyakuzuki", pron: "mah-eh-geh-ree, gyah-koo-zoo-kee, kah-gee-zoo-kee, gyah-koo-zoo-kee", english: "Lead leg front kick > rear hand straight punch > lead hand hook > rear hand straight" },
+                { id: "CO12", japanese: "Agezuki > Gyakuzuki > Kagizuki > Kagizuki", pron: "ah-geh-zoo-kee, gyah-koo-zoo-kee, kah-gee-zoo-kee, kah-gee-zoo-kee", english: "Rear hand uppercut > rear hand straight punch > lead hand hook punch > rear hand hook punch" },
+                { id: "CO13", japanese: "Maegeri > Gyakuzuki > Kagizuki > Agezuki", pron: "mah-eh-geh-ree, gyah-koo-zoo-kee, kah-gee-zoo-kee, ah-geh-zoo-kee", english: "Rear leg front kick > drop back - rear hand straight > lead hand hook (45 degrees) > rear hand uppercut (45 degrees)" },
+                { id: "CO14", japanese: "Tobikomizuki > Surikomi Kingeri > Gyakuzuki > Mawashigeri", pron: "toh-bee-koh-mee-zoo-kee, soo-ree-koh-mee keen-geh-ree, gyah-koo-zoo-kee, mah-wah-shee-geh-ree", english: "Jab > step up groin kick > rear hand straight punch > rear leg roundhouse to thigh > drop back" },
+                { id: "CO15", japanese: "Shotai > Shotai > Mawashi Empi > Mawashi Empi > Hizageri > otoshi tettsui > Gedan yokogeri", pron: "shoh-tye, shoh-tye, mah-wah-shee ehm-pee, mah-wah-shee ehm-pee, hee-zah-geh-ree, oh-toh-shee teht-soo-ee, geh-dan yoh-koh-geh-ree", english: "Lead hand neck grab (datum set) > rear hand palm heel > rear hand palm heel > rear horizontal elbow > rear horizontal elbow > rear knee > drag forwards and angle off at 90 degrees > rear hand dropping hammer fist > shift sideways and stamp on leg" },
+                { id: "CO16", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki > Hizageri", pron: "toh-bee-koh-mee-zoo-kee, gyah-koo-zoo-kee, kah-gee-zoo-kee, gyah-koo-zoo-kee, hee-zah-geh-ree", english: "Jab > straight punch > hook > straight punch > knee" },
+                { id: "CO17", japanese: "Kingeri > Shotai > Kagi-shotai > Otoshi Tettsui", pron: "keen-geh-ree, shoh-tye, kah-gee shoh-tye, oh-toh-shee teht-soo-ee", english: "groin kick > palm heel > hooking palm heel > hammer fist" },
+                { id: "CO18", japanese: "Tobikomizuki > Gyakuzuki > Kagizuki > Gyakuzuki > Hizageri > Kingeri > Shotai > Kagi-Shotai > Otoshi Tettsui", pron: "toh-bee-koh-mee-zoo-kee, gyah-koo-zoo-kee, kah-gee-zoo-kee, gyah-koo-zoo-kee, hee-zah-geh-ree, keen-geh-ree, shoh-tye, kah-gee shoh-tye, oh-toh-shee teht-soo-ee", english: "Jab > straight punch > hook > straight punch > knee > groin kick > palm heel > hooking palm heel > hammer fist" },
+                { id: "CO19", japanese: "Tobikomizuki > Mawashigeri > Gyakuzuki > Mawashigeri > Junzuki", pron: "toh-bee-koh-mee-zoo-kee, mah-wah-shee-geh-ree, gyah-koo-zoo-kee, mah-wah-shee-geh-ree, joon-zoo-kee", english: "Jab > roundhouse > cross > roundhouse > lunge punch" },
+                { id: "CO20", japanese: "Tobikomizuki > Kagizuki > Agezuki > Gyakuzuki", pron: "toh-bee-koh-mee-zoo-kee, kah-gee-zoo-kee, ah-geh-zoo-kee, gyah-koo-zoo-kee", english: "Jab > hook > uppercut > cross" }
             ],
             kata: [
-                { id: "KA1", japanese: "Pinan Shodan", english: "Safe from harm Level 1" },
-                { id: "KA2", japanese: "Pinan Nidan", english: "Safe from harm Level 2" },
-                { id: "KA3", japanese: "Pinan Sandan", english: "Safe from harm Level 3" },
-                { id: "KA4", japanese: "Pinan Yondan", english: "Safe from harm Level 4" },
-                { id: "KA5", japanese: "Pinan Godan", english: "Safe from harm Level 5" },
-                { id: "KA6", japanese: "Kushanku", english: "Named after the creator of the Pinan Katas" }
+                { id: "KA1", japanese: "Pinan Shodan", pron: "pee-nan shoh-dan", english: "Safe from harm Level 1" },
+                { id: "KA2", japanese: "Pinan Nidan", pron: "pee-nan nee-dan", english: "Safe from harm Level 2" },
+                { id: "KA3", japanese: "Pinan Sandan", pron: "pee-nan san-dan", english: "Safe from harm Level 3" },
+                { id: "KA4", japanese: "Pinan Yondan", pron: "pee-nan yon-dan", english: "Safe from harm Level 4" },
+                { id: "KA5", japanese: "Pinan Godan", pron: "pee-nan goh-dan", english: "Safe from harm Level 5" },
+                { id: "KA6", japanese: "Kushanku", pron: "koo-shan-koo", english: "Named after the creator of the Pinan Katas" }
             ],
             throws: [
-                { id: "TH1", japanese: "O-sotogari", english: "Major outer reaping throw" },
-                { id: "TH2", japanese: "Ippon Seoi Nage", english: "One arm shoulder throw" },
-                { id: "TH3", japanese: "O-goshi", english: "Major hip throw" },
-                { id: "TH4", japanese: "Soto makikomi", english: "Outer winding throw" },
-                { id: "TH5", japanese: "Koshi guruma", english: "Hip wheel (cross-buttocks throw)" },
-                { id: "TH6", japanese: "Ukemi", english: "Breakfall" }
+                { id: "TH1", japanese: "O-sotogari", pron: "oh soh-toh gah-ree", english: "Major outer reaping throw" },
+                { id: "TH2", japanese: "Ippon Seoi Nage", pron: "eep-pon seh-oy nah-geh", english: "One arm shoulder throw" },
+                { id: "TH3", japanese: "O-goshi", pron: "oh goh-shee", english: "Major hip throw" },
+                { id: "TH4", japanese: "Soto makikomi", pron: "soh-toh mah-kee-koh-mee", english: "Outer winding throw" },
+                { id: "TH5", japanese: "Koshi guruma", pron: "koh-shee goo-roo-mah", english: "Hip wheel (cross-buttocks throw)" },
+                { id: "TH6", japanese: "Ukemi", pron: "oo-keh-mee", english: "Breakfall" }
             ]
         };
 
         const kyuGrades = {
             "9th Kyu": {
                 status: "active", labelShort: "9 Kyu", colorName: "Red", colorHex: "#a62c2c", accentHex: "#ec7063", isDarkText: false,
-                requirements: { stances: ["ST1", "ST5", "ST6"], techniques: ["TE6", "TE7", "TE8", "TE13", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24"], combinations: ["CO1", "CO2"], kata: ["KA1"], throws: ["TH6"] }
+                requirements: { stances: ["ST1"], techniques: ["TE6", "TE7", "TE8", "TE13", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24"], combinations: ["CO1", "CO2"], kata: ["KA1"], throws: ["TH6"] }
             },
             "8th Kyu": {
                 status: "active", labelShort: "8 Kyu", colorName: "Yellow", colorHex: "#d9a406", accentHex: "#f9e79f", isDarkText: true,
-                requirements: { stances: ["ST1", "ST2", "ST4", "ST5", "ST6"], techniques: ["TE6", "TE7", "TE8", "TE11", "TE13", "TE15", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24", "TE25", "TE26"], combinations: ["CO3", "CO4", "CO5", "CO6"], kata: ["KA1"], throws: ["TH1", "TH4", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST4"], techniques: ["TE6", "TE7", "TE8", "TE11", "TE13", "TE15", "TE16", "TE17", "TE18", "TE19", "TE20", "TE24", "TE25", "TE26"], combinations: ["CO3", "CO4", "CO5", "CO6"], kata: ["KA1"], throws: ["TH1", "TH4", "TH6"] }
             },
             "7th Kyu": {
                 status: "active", labelShort: "7 Kyu", colorName: "Orange", colorHex: "#c66315", accentHex: "#f5b041", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE6", "TE7", "TE8", "TE9", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO7", "CO8", "CO9", "CO10"], kata: ["KA1", "KA2"], throws: ["TH1", "TH3", "TH4", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE6", "TE7", "TE8", "TE9", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO7", "CO8", "CO9", "CO10"], kata: ["KA1", "KA2"], throws: ["TH1", "TH3", "TH4", "TH6"] }
             },
             "6th Kyu": {
                 status: "active", labelShort: "6 Kyu", colorName: "Green", colorHex: "#1e7e43", accentHex: "#58d68d", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO11", "CO12", "CO13", "CO14"], kata: ["KA1", "KA2", "KA3"], throws: ["TH2", "TH5", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE11", "TE12", "TE13", "TE15"], combinations: ["CO11", "CO12", "CO13", "CO14"], kata: ["KA1", "KA2", "KA3"], throws: ["TH2", "TH5", "TH6"] }
             },
             "5th Kyu": {
                 status: "active", labelShort: "5 Kyu", colorName: "Blue", colorHex: "#1461aa", accentHex: "#5dade2", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE14"], combinations: ["CO15", "CO16", "CO17"], kata: ["KA1", "KA2", "KA3", "KA4"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE14"], combinations: ["CO15", "CO16", "CO17"], kata: ["KA1", "KA2", "KA3", "KA4"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
             },
             "4th Kyu": {
                 status: "active", labelShort: "4 Kyu", colorName: "Purple", colorHex: "#683082", accentHex: "#b57edc", isDarkText: false,
-                requirements: { stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE5", "TE6", "TE7", "TE8", "TE9", "TE10"], combinations: ["CO18", "CO19", "CO20"], kata: ["KA1", "KA2", "KA3", "KA4", "KA5"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
+                requirements: { stances: ["ST1", "ST2", "ST3", "ST4"], techniques: ["TE1", "TE2", "TE3", "TE4", "TE5", "TE6", "TE7", "TE8", "TE9", "TE10"], combinations: ["CO18", "CO19", "CO20"], kata: ["KA1", "KA2", "KA3", "KA4", "KA5"], throws: ["TH1", "TH2", "TH3", "TH4", "TH5", "TH6"] }
             },
             "3rd Kyu": {
                 status: "active", labelShort: "3 Kyu", colorName: "Brown", colorHex: "#4a2e18", accentHex: "#a67c52", isDarkText: false,
                 requirements: { 
-                    stances: ["ST1", "ST2", "ST3", "ST4", "ST5", "ST6","ST7"], 
+                    stances: ["ST1", "ST2", "ST3", "ST4"], 
                     techniques: ["TE1", "TE2", "TE3", "TE4", "TE6", "TE7", "TE8", "TE9", "TE10", "TE27", "TE28"], 
                     combinations: ["CO1", "CO2", "CO3", "CO4", "CO5", "CO6", "CO7", "CO8", "CO9", "CO10", "CO11", "CO12", "CO13", "CO14", "CO15", "CO16", "CO17", "CO18", "CO19", "CO20"], 
                     kata: ["KA1", "KA2", "KA3", "KA4", "KA5", "KA6"], 
@@ -717,6 +731,7 @@
 
         let currentSelectedKyu = "9th Kyu";
         let isJapaneseToEnglish = true; 
+        let showPronunciation = false;
         let currentQuizItemsPool = [];   
         
         let quizTotalToAnswer = 0;
@@ -776,6 +791,8 @@
             });
 
             document.getElementById("btnQuiz").style.borderColor = gradeInfo.colorHex;
+            document.getElementById("btnPron").style.borderColor = gradeInfo.colorHex;
+            document.getElementById("btnQuizPron").style.borderColor = gradeInfo.colorHex;
             document.getElementById("btnNewQuiz").style.borderColor = gradeInfo.colorHex;
 
             const badges = ["currentBeltBadge", "quizBeltBadge"];
@@ -808,6 +825,23 @@
             } else if (document.getElementById("quizScreen").classList.contains("active")) {
                 startQuizMode();
             }
+        }
+
+        function togglePronunciation() {
+            showPronunciation = !showPronunciation;
+            updatePronunciationButtonLabels();
+            
+            document.querySelectorAll(".pronunciation-sub").forEach(el => {
+                el.style.display = showPronunciation ? "block" : "none";
+            });
+        }
+
+        function updatePronunciationButtonLabels() {
+            const statusText = `Pronunciation: ${showPronunciation ? "ON" : "OFF"}`;
+            const btnMain = document.getElementById("btnPron");
+            const btnQuiz = document.getElementById("btnQuizPron");
+            if (btnMain) btnMain.innerText = statusText;
+            if (btnQuiz) btnQuiz.innerText = statusText;
         }
 
         function updateDirectionLabels() {
@@ -843,13 +877,24 @@
                         const card = document.createElement("div");
                         card.className = "flashcard";
                         
-                        const promptText = isJapaneseToEnglish ? item.japanese : item.english;
-                        const answerText = isJapaneseToEnglish ? item.english : item.japanese;
+                        const pronStyle = showPronunciation && item.pron ? "block" : "none";
 
-                        card.innerHTML = `
-                            <div class="card-prompt">${promptText}</div>
-                            <div class="card-answer">${answerText}</div>
-                        `;
+                        if (isJapaneseToEnglish) {
+                            card.innerHTML = `
+                                <div class="card-prompt">${item.japanese}</div>
+                                <div class="pronunciation-sub" style="display: ${pronStyle};">(${item.pron || ""})</div>
+                                <div class="card-answer">${item.english}</div>
+                            `;
+                        } else {
+                            card.innerHTML = `
+                                <div class="card-prompt">${item.english}</div>
+                                <div class="card-answer japanese-answer-group">
+                                    ${item.japanese}
+                                    <div class="pronunciation-sub" style="display: ${pronStyle};">(${item.pron || ""})</div>
+                                </div>
+                            `;
+                        }
+
                         card.onclick = () => card.classList.toggle("revealed");
                         container.appendChild(card);
                     });
@@ -880,6 +925,7 @@
             quizCorrectScore = 0;
             
             updateQuizScoreboardUI();
+            updatePronunciationButtonLabels();
             renderQuizCardsFromPool();
 
             document.getElementById("trainerScreen").classList.remove("active");
@@ -906,17 +952,31 @@
                 card.className = "flashcard";
                 card.id = `quizCard-${index}`;
                 
-                const promptText = isJapaneseToEnglish ? item.japanese : item.english;
-                const answerText = isJapaneseToEnglish ? item.english : item.japanese;
+                const pronStyle = showPronunciation && item.pron ? "block" : "none";
 
-                card.innerHTML = `
-                    <div class="card-prompt">${promptText}</div>
-                    <div class="card-answer">${answerText}</div>
-                    <div class="quiz-scoring-container" onclick="event.stopPropagation();">
-                        <button class="score-choice-btn btn-got-it" title="Correct" onclick="gradeQuizItem(${index}, true)">✓</button>
-                        <button class="score-choice-btn btn-missed-it" title="Incorrect" onclick="gradeQuizItem(${index}, false)">✗</button>
-                    </div>
-                `;
+                if (isJapaneseToEnglish) {
+                    card.innerHTML = `
+                        <div class="card-prompt">${item.japanese}</div>
+                        <div class="pronunciation-sub" style="display: ${pronStyle};">(${item.pron || ""})</div>
+                        <div class="card-answer">${item.english}</div>
+                        <div class="quiz-scoring-container" onclick="event.stopPropagation();">
+                            <button class="score-choice-btn btn-got-it" title="Correct" onclick="gradeQuizItem(${index}, true)">✓</button>
+                            <button class="score-choice-btn btn-missed-it" title="Incorrect" onclick="gradeQuizItem(${index}, false)">✗</button>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="card-prompt">${item.english}</div>
+                        <div class="card-answer japanese-answer-group">
+                            ${item.japanese}
+                            <div class="pronunciation-sub" style="display: ${pronStyle};">(${item.pron || ""})</div>
+                        </div>
+                        <div class="quiz-scoring-container" onclick="event.stopPropagation();">
+                            <button class="score-choice-btn btn-got-it" title="Correct" onclick="gradeQuizItem(${index}, true)">✓</button>
+                            <button class="score-choice-btn btn-missed-it" title="Incorrect" onclick="gradeQuizItem(${index}, false)">✗</button>
+                        </div>
+                    `;
+                }
                 
                 card.onclick = () => card.classList.toggle("revealed");
                 quizContainer.appendChild(card);
